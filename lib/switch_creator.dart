@@ -2,10 +2,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'sensor_data.dart';
 
 class DataConverter {
-  SensorData sensorData = SensorData();
-  List<FlSpot> chartDataX = [];
-  List<FlSpot> chartDataY = [];
-  List<FlSpot> chartDataZ = [];
+  static SensorData sensorData = SensorData();
+  static List<FlSpot> chartDataX = [];
+  static List<FlSpot> chartDataY = [];
+  static List<FlSpot> chartDataZ = [];
 
   List<FlSpot> convertToTimeAndXAcc() {
     for (int i = 0; i < SensorData.userAccelerometerValues.length; i++) {

@@ -70,6 +70,14 @@ class _LineChartSample2State extends State<LineChartSample2> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    dataConverter = DataConverter();
+    xAccelerometerChart = ChartLayout();
+    yAccelerometerChart = ChartLayout();
+    zAccelerometerChart = ChartLayout();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
