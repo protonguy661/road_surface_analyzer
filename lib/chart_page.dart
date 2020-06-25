@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'switch_creator.dart';
+import 'package:sensordatenapp/screenSizeProperties.dart';
+import 'package:sensordatenapp/sensor_data.dart';
+import 'data_converter.dart';
 
 class ChartLayout {
   double maximumX = 0;
@@ -29,17 +31,18 @@ class ChartLayout {
   }
 }
 
-class LineChartSample2 extends StatefulWidget {
+class ChartPage extends StatefulWidget {
   @override
-  _LineChartSample2State createState() => _LineChartSample2State();
+  _ChartPageState createState() => _ChartPageState();
 }
 
-class _LineChartSample2State extends State<LineChartSample2> {
+class _ChartPageState extends State<ChartPage> {
   ///Needed for general functionality of Chart Plugin
-  bool showAvg = false;
+  bool showAvg = true;
   List<Color> lineColor = [
-    Colors.blue,
+    Color(0xFF655BB5),
   ];
+  List<MeasuredDataObject> accData = [];
 
   ///Special variables for Chart Plugin
   DataConverter dataConverter = DataConverter();
@@ -48,40 +51,13 @@ class _LineChartSample2State extends State<LineChartSample2> {
   ChartLayout zAccelerometerChart = ChartLayout();
 
   @override
-  void initState() {
-    super.initState();
-
-    ///Convert measured data into data, which the fl chart plugin can understand
-    ///and use for building the line chart. It extracts (currently) the time
-    ///and x Axis data from the whole measured dataset "sensordata". time is
-    ///represented on the xAxis, whereas accelerometer data is on the yAxis.
-    xAccelerometerChart.accelerometerData =
-        dataConverter.convertToTimeAndXAcc();
-    yAccelerometerChart.accelerometerData =
-        dataConverter.convertToTimeAndYAcc();
-    zAccelerometerChart.accelerometerData =
-        dataConverter.convertToTimeAndZAcc();
-
-    ///Find min and max from x and y axis from chartData for later use
-    ///of adjusting the line chart to these values.
-    xAccelerometerChart.MaxMinXandY();
-    yAccelerometerChart.MaxMinXandY();
-    zAccelerometerChart.MaxMinXandY();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    dataConverter = DataConverter();
-    xAccelerometerChart = ChartLayout();
-    yAccelerometerChart = ChartLayout();
-    zAccelerometerChart = ChartLayout();
-  }
-  @override
   Widget build(BuildContext context) {
+    accData = ModalRoute.of(context).settings.arguments;
+    accDataToChartDataConverter(accData);
+    ScreenSizeProperties().init(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -99,6 +75,25 @@ class _LineChartSample2State extends State<LineChartSample2> {
               height: 20,
             ),
             Container(
+              height: ScreenSizeProperties.safeBlockVertical * 75,
+              width: ScreenSizeProperties.safeBlockHorizontal * 100,
+              padding:
+                  EdgeInsets.all(ScreenSizeProperties.safeBlockVertical * 3),
+              margin: EdgeInsets.only(
+                  left: ScreenSizeProperties.safeBlockHorizontal * 6,
+                  right: ScreenSizeProperties.safeBlockHorizontal * 6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 6,
+                    blurRadius: 15,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
@@ -109,23 +104,14 @@ class _LineChartSample2State extends State<LineChartSample2> {
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        right: 18.0, left: 12.0, top: 24, bottom: 12),
-                    child: Container(
-                      height: 200,
-                      child: LineChart(
-                        mainData(xAccelerometerChart),
-                      ),
+                  SizedBox(
+                    height: ScreenSizeProperties.safeBlockVertical * 1,
+                  ),
+                  Expanded(
+                    child: LineChart(
+                      buildChart(xAccelerometerChart),
                     ),
                   ),
-                ],
-              ),
-            ),
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
                   Container(
                     alignment: Alignment.center,
                     child: Text(
@@ -133,23 +119,14 @@ class _LineChartSample2State extends State<LineChartSample2> {
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        right: 18.0, left: 12.0, top: 24, bottom: 12),
-                    child: Container(
-                      height: 200,
-                      child: LineChart(
-                        mainData(yAccelerometerChart),
-                      ),
+                  SizedBox(
+                    height: ScreenSizeProperties.safeBlockVertical * 1,
+                  ),
+                  Expanded(
+                    child: LineChart(
+                      buildChart(yAccelerometerChart),
                     ),
                   ),
-                ],
-              ),
-            ),
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
                   Container(
                     alignment: Alignment.center,
                     child: Text(
@@ -157,26 +134,111 @@ class _LineChartSample2State extends State<LineChartSample2> {
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        right: 18.0, left: 12.0, top: 24, bottom: 12),
-                    child: Container(
-                      height: 200,
-                      child: LineChart(
-                        mainData(zAccelerometerChart),
-                      ),
+                  SizedBox(
+                    height: ScreenSizeProperties.safeBlockVertical * 1,
+                  ),
+                  Expanded(
+                    child: LineChart(
+                      buildChart(zAccelerometerChart),
                     ),
                   ),
                 ],
               ),
             ),
+            SizedBox(
+              height: ScreenSizeProperties.safeBlockVertical * 2,
+            ),
+            Container(
+              margin: EdgeInsets.only(
+                  left: ScreenSizeProperties.safeBlockHorizontal * 6,
+                  right: ScreenSizeProperties.safeBlockHorizontal * 6),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 6,
+                            blurRadius: 15,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      height: 60,
+                      child: FlatButton(
+                        child: Text(
+                          'Go back',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: ScreenSizeProperties.safeBlockHorizontal * 2,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFF655BB5),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 6,
+                            blurRadius: 15,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      height: 60,
+                      child: FlatButton(
+                        child: Text(
+                          'Predict Road Surface',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/result');
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
     );
   }
 
-  LineChartData mainData(ChartLayout data) {
+  accDataToChartDataConverter(List<MeasuredDataObject> data) {
+    ///Convert measured data into data, which the fl chart plugin can understand
+    ///and use for building the line chart. It extracts (currently) the time
+    ///and Axis data from the whole measured dataset "sensordata". time is
+    ///represented on the xAxis of the Chart, whereas accelerometer data is on
+    ///the yAxis of the Chart.
+    xAccelerometerChart.accelerometerData =
+        dataConverter.FLSpotConversion_TX(data);
+    yAccelerometerChart.accelerometerData =
+        dataConverter.FLSpotConversion_TY(data);
+    zAccelerometerChart.accelerometerData =
+        dataConverter.FLSpotConversion_TZ(data);
+
+    ///Find min and max from x and y axis from chartData for later use
+    ///of adjusting the line chart to these values.
+    xAccelerometerChart.MaxMinXandY();
+    yAccelerometerChart.MaxMinXandY();
+    zAccelerometerChart.MaxMinXandY();
+  }
+
+  LineChartData buildChart(ChartLayout data) {
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -238,11 +300,11 @@ class _LineChartSample2State extends State<LineChartSample2> {
       ),
       axisTitleData: FlAxisTitleData(
         leftTitle:
-            AxisTitle(showTitle: true, titleText: 'Accelerometer', margin: 4),
+            AxisTitle(showTitle: true, titleText: 'accelerometer', margin: 4),
         bottomTitle: AxisTitle(
             showTitle: true,
             margin: 0,
-            titleText: 'Zeit',
+            titleText: 'time (s)',
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             textAlign: TextAlign.right),
       ),
