@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 
 class ViewNotifier extends ChangeNotifier {
   var show = {
+    'showLogo': true,
     'startMeasuring': true,
     'stopMeasuring': false,
     'buildChart': false,
+    'showIndicator': false,
+    'showLoading': false,
   };
+  Stopwatch watch = Stopwatch();
 
   void switchView(String index) {
     print(index);
@@ -16,5 +20,19 @@ class ViewNotifier extends ChangeNotifier {
       show[index] = true;
       notifyListeners();
     }
+  }
+
+  void startWatch() {
+    watch.start();
+  }
+
+  void getTime() {
+    while (watch.isRunning) {
+      notifyListeners();
+    }
+  }
+
+  void stopWatch() {
+    watch.stop();
   }
 }

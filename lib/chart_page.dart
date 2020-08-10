@@ -1,7 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sensordatenapp/screenSizeProperties.dart';
-import 'package:sensordatenapp/sensor_data.dart';
+import 'package:sensordatenapp/sensor_and_gps.dart';
 import 'data_converter.dart';
 
 class ChartLayout {
@@ -11,7 +12,7 @@ class ChartLayout {
   double minimumY = 0;
   List<FlSpot> accelerometerData = [];
 
-  void MaxMinXandY() {
+  Future<void> MaxMinXandY() {
     for (var i = 0; i < accelerometerData.length; i++) {
       if (accelerometerData[i].x > maximumX) {
         maximumX = accelerometerData[i].x;
@@ -38,11 +39,11 @@ class ChartPage extends StatefulWidget {
 
 class _ChartPageState extends State<ChartPage> {
   ///Needed for general functionality of Chart Plugin
-  bool showAvg = true;
   List<Color> lineColor = [
     Color(0xFF655BB5),
   ];
   List<MeasuredDataObject> accData = [];
+  bool dataForChartFinished = false;
 
   ///Special variables for Chart Plugin
   DataConverter dataConverter = DataConverter();
@@ -55,170 +56,186 @@ class _ChartPageState extends State<ChartPage> {
     accData = ModalRoute.of(context).settings.arguments;
     accDataToChartDataConverter(accData);
     ScreenSizeProperties().init(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            SizedBox(
-              height: 70,
-            ),
-            Container(
-              alignment: Alignment.center,
-              child: Text(
-                'Accelerometer Data Chart',
-                style: TextStyle(fontSize: 26),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Container(
-              height: ScreenSizeProperties.safeBlockVertical * 75,
-              width: ScreenSizeProperties.safeBlockHorizontal * 100,
-              padding:
-                  EdgeInsets.all(ScreenSizeProperties.safeBlockVertical * 3),
-              margin: EdgeInsets.only(
-                  left: ScreenSizeProperties.safeBlockHorizontal * 6,
-                  right: ScreenSizeProperties.safeBlockHorizontal * 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 6,
-                    blurRadius: 15,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
+    return dataForChartFinished
+        ? Scaffold(
+            body: SafeArea(
+                child: Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   Container(
                     alignment: Alignment.center,
                     child: Text(
-                      'x-Accelerometer Data',
-                      style: TextStyle(fontSize: 18),
+                      'Accelerometer Data Chart',
+                      style: TextStyle(fontSize: 26),
                     ),
                   ),
                   SizedBox(
-                    height: ScreenSizeProperties.safeBlockVertical * 1,
-                  ),
-                  Expanded(
-                    child: LineChart(
-                      buildChart(xAccelerometerChart),
-                    ),
+                    height: 20,
                   ),
                   Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'y-Accelerometer Data',
-                      style: TextStyle(fontSize: 18),
+                    height: ScreenSizeProperties.safeBlockVertical * 70,
+                    width: ScreenSizeProperties.safeBlockHorizontal * 100,
+                    padding: EdgeInsets.all(
+                        ScreenSizeProperties.safeBlockVertical * 3),
+                    margin: EdgeInsets.only(
+                        left: ScreenSizeProperties.safeBlockHorizontal * 6,
+                        right: ScreenSizeProperties.safeBlockHorizontal * 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 6,
+                          blurRadius: 15,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'x-Accelerometer Data',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenSizeProperties.safeBlockVertical * 1,
+                        ),
+                        Expanded(
+                          child: LineChart(
+                            buildChart(xAccelerometerChart),
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'y-Accelerometer Data',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenSizeProperties.safeBlockVertical * 1,
+                        ),
+                        Expanded(
+                          child: LineChart(
+                            buildChart(yAccelerometerChart),
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'z-Accelerometer Data',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenSizeProperties.safeBlockVertical * 1,
+                        ),
+                        Expanded(
+                          child: LineChart(
+                            buildChart(zAccelerometerChart),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(
-                    height: ScreenSizeProperties.safeBlockVertical * 1,
-                  ),
-                  Expanded(
-                    child: LineChart(
-                      buildChart(yAccelerometerChart),
-                    ),
+                    height: ScreenSizeProperties.safeBlockVertical * 2,
                   ),
                   Container(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'z-Accelerometer Data',
-                      style: TextStyle(fontSize: 18),
+                    margin: EdgeInsets.only(
+                        left: ScreenSizeProperties.safeBlockHorizontal * 6,
+                        right: ScreenSizeProperties.safeBlockHorizontal * 6),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 6,
+                                  blurRadius: 15,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            height: 60,
+                            child: FlatButton(
+                              child: Text(
+                                'Go back',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: ScreenSizeProperties.safeBlockHorizontal * 2,
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFF655BB5),
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 6,
+                                  blurRadius: 15,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            height: 60,
+                            child: FlatButton(
+                              child: Text(
+                                'Predict Road Surface',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  dataForChartFinished = false;
+                                });
+                                Navigator.pushNamed(context, '/result');
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    height: ScreenSizeProperties.safeBlockVertical * 1,
-                  ),
-                  Expanded(
-                    child: LineChart(
-                      buildChart(zAccelerometerChart),
-                    ),
-                  ),
+                  )
                 ],
               ),
-            ),
-            SizedBox(
-              height: ScreenSizeProperties.safeBlockVertical * 2,
-            ),
-            Container(
-              margin: EdgeInsets.only(
-                  left: ScreenSizeProperties.safeBlockHorizontal * 6,
-                  right: ScreenSizeProperties.safeBlockHorizontal * 6),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 6,
-                            blurRadius: 15,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      height: 60,
-                      child: FlatButton(
-                        child: Text(
-                          'Go back',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: ScreenSizeProperties.safeBlockHorizontal * 2,
-                  ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF655BB5),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 6,
-                            blurRadius: 15,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      height: 60,
-                      child: FlatButton(
-                        child: Text(
-                          'Predict Road Surface',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/result');
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+            )),
+          )
+        : Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: Column(
+                  children: <Widget>[
+                    CircularProgressIndicator(),
+                    Container(
+                      child: Text('Building chart...'),
+                    )
+                  ],
+                ),
               ),
-            )
-          ],
-        ),
-      ),
-    );
+            ),
+          );
   }
 
-  accDataToChartDataConverter(List<MeasuredDataObject> data) {
+  accDataToChartDataConverter(List<MeasuredDataObject> data) async {
     ///Convert measured data into data, which the fl chart plugin can understand
     ///and use for building the line chart. It extracts (currently) the time
     ///and Axis data from the whole measured dataset "sensordata". time is
@@ -233,13 +250,20 @@ class _ChartPageState extends State<ChartPage> {
 
     ///Find min and max from x and y axis from chartData for later use
     ///of adjusting the line chart to these values.
-    xAccelerometerChart.MaxMinXandY();
-    yAccelerometerChart.MaxMinXandY();
-    zAccelerometerChart.MaxMinXandY();
+    await xAccelerometerChart.MaxMinXandY();
+    await yAccelerometerChart.MaxMinXandY();
+    await zAccelerometerChart.MaxMinXandY();
+
+    setState(() {
+      dataForChartFinished = true;
+    });
   }
 
   LineChartData buildChart(ChartLayout data) {
     return LineChartData(
+      lineTouchData: LineTouchData(
+        enabled: false,
+      ),
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
@@ -311,10 +335,10 @@ class _ChartPageState extends State<ChartPage> {
       borderData: FlBorderData(
           show: true,
           border: Border.all(color: const Color(0xff37434d), width: 1)),
-      minX: 0,
-      maxX: 20,
-      minY: -15,
-      maxY: 15,
+      minX: data.minimumX,
+      maxX: data.maximumX,
+      minY: data.minimumY,
+      maxY: data.maximumY,
       lineBarsData: [
         LineChartBarData(
           colors: lineColor,

@@ -1,5 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'sensor_data.dart';
+import 'sensor_and_gps.dart';
 
 class DataConverter {
   SensorData sensorData = SensorData();
@@ -15,6 +15,7 @@ class DataConverter {
           accData[i].x,
         ),
       );
+      i += 9;
     }
     return chartDataX;
   }
@@ -27,6 +28,7 @@ class DataConverter {
           accData[i].y,
         ),
       );
+      i += 9;
     }
     return chartDataY;
   }
@@ -39,6 +41,7 @@ class DataConverter {
           accData[i].z,
         ),
       );
+      i += 9;
     }
     return chartDataZ;
   }
