@@ -212,7 +212,8 @@ class _ChartPageState extends State<ChartPage> {
                                 setState(() {
                                   dataForChartFinished = false;
                                 });
-                                Navigator.pushNamed(context, '/result');
+
+                                Navigator.of(context).pushNamedAndRemoveUntil('/result', (Route<dynamic> route) => false);
                               },
                             ),
                           ),

@@ -190,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ScreenSizeProperties.safeBlockHorizontal *
                               75,
                           height:
-                          ScreenSizeProperties.safeBlockVertical * 55,
+                          ScreenSizeProperties.safeBlockVertical * 65,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
@@ -422,63 +422,130 @@ class _MyHomePageState extends State<MyHomePage> {
                                     3,
                               ),
                               coefficient != null
-                                  ? MainButton(
-                                title: 'Predict Road Surface',
+                                  ? Column(
+                                    children: <Widget>[
+                                      MainButton(
+                                title: 'Show Graph before Prediction',
                                 color: Color(0xFF655BB5),
                                 textColor: Colors.white,
                                 function: () async {
-                                  showDialog(
-                                      context: context,
-                                      builder:
-                                          (BuildContext context) {
-                                        return AlertDialog(
-                                          title:
-                                          Text("Information"),
-                                          content: RichText(
-                                            text: TextSpan(
-                                                text:
-                                                "Please click on 'OK' ",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color:
-                                                  Colors.black,
-                                                ),
-                                                children: <
-                                                    TextSpan>[
-                                                  TextSpan(
-                                                      text:
-                                                      "only once",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                          FontWeight
-                                                              .bold)),
-                                                  TextSpan(
-                                                      text:
-                                                      ". The App will freeze for a couple of seconds before you will get redirected to the prediction page. Please have patience.")
-                                                ]),
-                                          ),
-                                          actions: [
-                                            FlatButton(
-                                              child: Text("OK"),
-                                              onPressed: () async {
-                                                await csv.createCSV(
-                                                    coefficient,
-                                                    frequency,
-                                                    tempAccData);
+                                      showDialog(
+                                          context: context,
+                                          builder:
+                                              (BuildContext context) {
+                                            return AlertDialog(
+                                              title:
+                                              Text("Information"),
+                                              content: RichText(
+                                                text: TextSpan(
+                                                    text:
+                                                    "Please click on 'OK' ",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color:
+                                                      Colors.black,
+                                                    ),
+                                                    children: <
+                                                        TextSpan>[
+                                                      TextSpan(
+                                                          text:
+                                                          "only once",
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
 
-                                                Navigator.pushNamed(
-                                                    context,
-                                                    '/result');
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                  /*  Navigator.pushNamed(
-                                                  context, '/graph',
-                                                  arguments: tempAccData);*/
+                                                      TextSpan(
+                                                        text:
+                                                        ". The App will freeze for a couple of seconds before you will get redirected to the graph page. Please have patience.",
+                                                      )
+                                                    ]),
+                                              ),
+                                              actions: [
+                                                FlatButton(
+                                                  child: Text("OK"),
+                                                  onPressed: () async {
+                                                    await csv.createCSV(
+                                                        coefficient,
+                                                        frequency,
+                                                        tempAccData);
+
+
+                                                     Navigator.pushNamed(
+                                                        context,
+                                                        '/graph',
+                                                    arguments: tempAccData);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          });
+
                                 },
-                              )
+                              ),
+                                      SizedBox(
+                                        height: ScreenSizeProperties.safeBlockVertical * 2,
+                                      ),
+                                      MainButton(
+                                        //title: 'Show Graphs',
+                                        title: 'Skip Graphs and show Prediction',
+                                        color: Color(0xFF655BB5),
+                                        textColor: Colors.white,
+                                        function: () async {
+                                          showDialog(
+                                              context: context,
+                                              builder:
+                                                  (BuildContext context) {
+                                                return AlertDialog(
+                                                  title:
+                                                  Text("Information"),
+                                                  content: RichText(
+                                                    text: TextSpan(
+                                                        text:
+                                                        "Please click on 'OK' ",
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          color:
+                                                          Colors.black,
+                                                        ),
+                                                        children: <
+                                                            TextSpan>[
+                                                          TextSpan(
+                                                              text:
+                                                              "only once",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                          TextSpan(
+                                                            text:
+                                                            ". The App will freeze for a couple of seconds before you will get redirected to the prediction page. Please have patience.",),
+
+                                                        ]),
+                                                  ),
+                                                  actions: [
+                                                    FlatButton(
+                                                      child: Text("OK"),
+                                                      onPressed: () async {
+                                                        await csv.createCSV(
+                                                            coefficient,
+                                                            frequency,
+                                                            tempAccData);
+
+                                                        Navigator.pushNamed(
+                                                            context,
+                                                            '/result');
+
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+
+                                        },
+                                      ),
+                                    ],
+                                  )
                                   : Container(),
                             ],
                           ),
@@ -539,6 +606,7 @@ class MainButton extends StatelessWidget {
       child: FlatButton(
         child: Text(
           title,
+          textAlign: TextAlign.center,
           style: TextStyle(color: textColor),
         ),
         onPressed: function,
