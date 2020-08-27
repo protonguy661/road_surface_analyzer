@@ -6,7 +6,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sensordatenapp/sensor_and_gps.dart';
 import 'package:sensordatenapp/screenSizeProperties.dart';
 import 'package:http/http.dart' as http;
-import 'dart:math';
 
 class ResultPage extends StatefulWidget {
   @override
@@ -20,6 +19,9 @@ class _ResultPageState extends State<ResultPage> {
   Map<String, dynamic> fetchedData = {};
   Map<String, dynamic> predictionResult = {};
   Map<int, dynamic> renamedResult = {};
+
+  ///===============Create route lines for displaying on Google Maps============
+  ///Route lines are created based on the recorded GPS coordinates.
 
   void showDrivenRoute() {
     final String polylineIdVal = 'polyline_id_$_polylineIdCounter';
@@ -39,9 +41,18 @@ class _ResultPageState extends State<ResultPage> {
     });
   }
 
+  ///===========================================================================
+
+  ///===========Get surface type prediction results=============================
+  ///This method sends a request to the Google Cloud Function, which contains
+  ///the python code of LGO4QS_Cycling:
+  ///https://github.com/NilsHMeier/LG04QS_Cycling
+  ///This code will then process the newest .csv file, which is uploaded to the
+  ///Firebase Cloud and sends the prediction result back as a .json file.
+
   void fetchResult() async {
     final response = await http.get(
-        'https://europe-west3-sensordaten-d713c.cloudfunctions.net/funktiontestitesti');
+        'https://europe-west3-sensordaten-d713c.cloudfunctions.net/lgo4qs-surface-prediction-cloud-function');
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
       // then parse the JSON.
@@ -57,6 +68,9 @@ class _ResultPageState extends State<ResultPage> {
     }
   }
 
+  ///===========================================================================
+
+  ///===========Rename result for better reading experience=====================
   // ignore: missing_return
   Future<void> renameResult() {
     predictionResult.forEach((key, value) {
@@ -78,6 +92,8 @@ class _ResultPageState extends State<ResultPage> {
       }
     });
   }
+
+  ///===========================================================================
 
   void predictData() async {
     await uploadFile(dataFile, 'sensordaten.csv');
@@ -151,51 +167,51 @@ class _ResultPageState extends State<ResultPage> {
                 ),
                 child: fetchedData.toString().contains('{}')
                     ? Container(
-                        height: ScreenSizeProperties.safeBlockVertical * 10,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            CircularProgressIndicator(),
-                            Text(
-                              'Predicting road surface.',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            Text(
-                              'Please wait...',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Scrollbar(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          primary: false,
-                          itemCount: renamedResult.length,
-                          // ignore: missing_return
-                          itemBuilder: (BuildContext context, int index) {
-                            if (index < renamedResult.length - 1) {
-                              return ListTile(
-                                title: Text(
-                                  'From ${renamedResult.keys.toList().elementAt(index)} to ${renamedResult.keys.toList().elementAt(index + 1)} seconds:',
-                                ),
-                                subtitle: Text(
-                                  '${renamedResult.values.toList().elementAt(index)}',
-                                ),
-                              );
-                            } else if (index < renamedResult.length) {
-                              return ListTile(
-                                title: Text(
-                                  'From ${renamedResult.keys.toList().elementAt(index)} seconds to end of recording:',
-                                ),
-                                subtitle: Text(
-                                  '${renamedResult.values.toList().elementAt(index)}',
-                                ),
-                              );
-                            }
-                          },
-                        ),
+                  height: ScreenSizeProperties.safeBlockVertical * 10,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      CircularProgressIndicator(),
+                      Text(
+                        'Predicting road surface.',
+                        style: TextStyle(fontSize: 16),
                       ),
+                      Text(
+                        'Please wait...',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                )
+                    : Scrollbar(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    itemCount: renamedResult.length,
+                    // ignore: missing_return
+                    itemBuilder: (BuildContext context, int index) {
+                      if (index < renamedResult.length - 1) {
+                        return ListTile(
+                          title: Text(
+                            'From ${renamedResult.keys.toList().elementAt(index)} to ${renamedResult.keys.toList().elementAt(index + 1)} seconds:',
+                          ),
+                          subtitle: Text(
+                            '${renamedResult.values.toList().elementAt(index)}',
+                          ),
+                        );
+                      } else if (index < renamedResult.length) {
+                        return ListTile(
+                          title: Text(
+                            'From ${renamedResult.keys.toList().elementAt(index)} seconds to end of recording:',
+                          ),
+                          subtitle: Text(
+                            '${renamedResult.values.toList().elementAt(index)}',
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
               ),
             ],
           ),
@@ -204,10 +220,14 @@ class _ResultPageState extends State<ResultPage> {
     );
   }
 
+  ///===============Upload accelerometer data to Firebase=======================
+  ///Uploading the recorded accelerometer data as a .csv file to the Firebase
+  ///Cloud.
+
   Future<void> uploadFile(File file, String filename) async {
     if (dataFile != null) {
       StorageReference storageRef =
-          FirebaseStorage.instance.ref().child("file_to_process/$filename");
+      FirebaseStorage.instance.ref().child("file_to_process/$filename");
       await storageRef.putFile(dataFile).onComplete.catchError((onError) {
         print(onError);
         return false;
@@ -218,11 +238,17 @@ class _ResultPageState extends State<ResultPage> {
     }
   }
 
+  ///===========================================================================
+
   void onMapCreated(controller) {
     setState(() {
       _mapController = controller;
     });
   }
+
+  ///===============Create location points from GPS coordinates=================
+  ///This is needed for building the route lines on Google Maps using the
+  ///location points.
 
   List<LatLng> _createPoints() {
     final List<LatLng> points = <LatLng>[];
@@ -233,4 +259,6 @@ class _ResultPageState extends State<ResultPage> {
     }
     return points;
   }
+
+///===========================================================================
 }

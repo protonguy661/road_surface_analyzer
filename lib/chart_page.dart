@@ -12,6 +12,9 @@ class ChartLayout {
   double minimumY = 0;
   List<FlSpot> accelerometerData = [];
 
+  ///=====Checking maximum and minimum value of x and y axis====================
+  ///Is needed for building responsive charts, so no accelerometer chart will
+  ///be overflowed.
   Future<void> MaxMinXandY() {
     for (var i = 0; i < accelerometerData.length; i++) {
       if (accelerometerData[i].x > maximumX) {
@@ -30,6 +33,8 @@ class ChartLayout {
       }
     }
   }
+
+  ///===========================================================================
 }
 
 class ChartPage extends StatefulWidget {
@@ -235,12 +240,14 @@ class _ChartPageState extends State<ChartPage> {
           );
   }
 
+  ///============Converting accelerometer data to FLSpots=======================
+  ///Convert accelerometer data into data, which the fl chart plugin can understand
+  ///and use for building the line chart. It extracts (currently) the time
+  ///and Axis data from the whole measured dataset "sensordata". Time is
+  ///represented on the xAxis of the Chart, whereas accelerometer data is on
+  ///the yAxis of the Chart.
+
   accDataToChartDataConverter(List<MeasuredDataObject> data) async {
-    ///Convert measured data into data, which the fl chart plugin can understand
-    ///and use for building the line chart. It extracts (currently) the time
-    ///and Axis data from the whole measured dataset "sensordata". time is
-    ///represented on the xAxis of the Chart, whereas accelerometer data is on
-    ///the yAxis of the Chart.
     xAccelerometerChart.accelerometerData =
         dataConverter.FLSpotConversion_TX(data);
     yAccelerometerChart.accelerometerData =
@@ -248,8 +255,6 @@ class _ChartPageState extends State<ChartPage> {
     zAccelerometerChart.accelerometerData =
         dataConverter.FLSpotConversion_TZ(data);
 
-    ///Find min and max from x and y axis from chartData for later use
-    ///of adjusting the line chart to these values.
     await xAccelerometerChart.MaxMinXandY();
     await yAccelerometerChart.MaxMinXandY();
     await zAccelerometerChart.MaxMinXandY();
@@ -259,6 +264,9 @@ class _ChartPageState extends State<ChartPage> {
     });
   }
 
+  ///===========================================================================
+
+  ///==========Method for building the accelerometer data charts================
   LineChartData buildChart(ChartLayout data) {
     return LineChartData(
       lineTouchData: LineTouchData(
@@ -353,4 +361,6 @@ class _ChartPageState extends State<ChartPage> {
       ],
     );
   }
+
+  ///===========================================================================
 }

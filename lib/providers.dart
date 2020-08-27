@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+///==========================Providers==========================================
+///These Providers are needed for state management of the home page.
+
 class ViewNotifier extends ChangeNotifier {
   var show = {
     'showLogo': true,

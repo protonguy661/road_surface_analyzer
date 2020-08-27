@@ -5,6 +5,12 @@ import 'package:sensordatenapp/sensor_and_gps.dart';
 import 'dart:io';
 
 class Csv {
+  ///==============Building .csv file===========================================
+  ///The .csv file will be created here and filled with the accelerometer data,
+  ///the devices' frequency of the accelerometer sensor and the selected
+  ///suspension coefficient. After creating the file, it will be saved on the
+  ///device.
+
   createCSV(double coef, int freq, List<MeasuredDataObject> accData) async {
     List<List<dynamic>> rows = List<List<dynamic>>();
     int frequency = 0;
@@ -49,4 +55,6 @@ class Csv {
       csvPath = pathOfTheFileToWrite;
     }
   }
+
+  ///===========================================================================
 }

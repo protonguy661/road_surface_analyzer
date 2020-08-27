@@ -9,15 +9,13 @@ List<MeasuredDataObject> geoData = [];
 bool shouldTrack = false;
 
 class SensorData {
-  ///VARIABLES
-
   List<MeasuredDataObject> accData = [];
 
   List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
   Stopwatch watch = Stopwatch();
 
-  ///METHODS
+  ///=====Starting the accelerometer recording==================================
   startDataStream() async {
     shouldTrack = true;
     accData = [];
@@ -39,6 +37,9 @@ class SensorData {
     }));
   }
 
+  ///===========================================================================
+
+  ///===========Stopping the accelerometer recording============================
   List<MeasuredDataObject> stopDataStream() {
     for (StreamSubscription<dynamic> subscription in _streamSubscriptions) {
       subscription.cancel();
@@ -50,6 +51,9 @@ class SensorData {
     return accData;
   }
 
+  ///===========================================================================
+
+  ///===========Recording the GPS coordinates of the device=====================
   trackPosition() async {
     geoData = [];
     while (shouldTrack == true) {
@@ -61,6 +65,8 @@ class SensorData {
       geoData.add(measuredData);
     }
   }
+
+  ///===========================================================================
 }
 
 class MeasuredDataObject {

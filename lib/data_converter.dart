@@ -7,6 +7,11 @@ class DataConverter {
   List<FlSpot> chartDataY = [];
   List<FlSpot> chartDataZ = [];
 
+  ///=======Converting accelerometer data to FLSpots============================
+  ///The fl_chart plugin can only display FLSpots, so the accelerometer data
+  ///has to be converted. There are 3 converting methods each method converting
+  ///a specific accelerometer axis.
+
   List<FlSpot> FLSpotConversion_TX(List<MeasuredDataObject> accData) {
     for (int i = 0; i < accData.length; i++) {
       chartDataX.add(
@@ -45,4 +50,6 @@ class DataConverter {
     }
     return chartDataZ;
   }
+
+///===========================================================================
 }

@@ -11,6 +11,10 @@ class ScreenSizeProperties {
   static double safeBlockHorizontal;
   static double safeBlockVertical;
 
+  ///========Checking the devices' width and height=============================
+  ///Is needed for creating a responsive arrangement of the widgets and elements
+  ///displayed on the device.
+
   void init(BuildContext context) {
     _mediaQueryData = MediaQuery.of(context);
     screenWidth = _mediaQueryData.size.width;
@@ -24,4 +28,6 @@ class ScreenSizeProperties {
     safeBlockHorizontal = (screenWidth - _safeAreaHorizontal) / 100;
     safeBlockVertical = (screenHeight - _safeAreaVertical) / 100;
   }
+
+  ///===========================================================================
 }
