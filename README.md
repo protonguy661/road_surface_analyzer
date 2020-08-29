@@ -9,23 +9,23 @@ This App is part of a university project called "Ground recognition via machine 
 
 ## How to use
 
-<img src="https://imgur.com/KqbKV21.jpg" width="200">
+<img align="left" src="https://imgur.com/KqbKV21.jpg" width="300">
 
 Start recording accelerometer data by clicking on 'Start Cycling'. After that, put your smartphone in the side pocket of your trousers (upright position and screen to the outside) and start cycling. You need to record for at least 30 seconds.
 
-<img src="https://imgur.com/3DffOJH.jpg" width="200">
+<img src="https://imgur.com/3DffOJH.jpg" width="300">
 
 When done cycling, click on 'Stop Cycling'. 
 
-<img src="https://imgur.com/j11KK8R.jpg" width="200">
+<img src="https://imgur.com/j11KK8R.jpg" width="300">
 
 Then, choose your suspension type. The suspension type reflects the suspension strength of your bicycle. Next, you can decide whether you want to see line charts of your accelerometer data and start the surface prediction of your driven route afterwards or go directly to the surface prediction and skip the charts.
 
-<img src="https://imgur.com/Efp3GBL.png" width="200">
+<img src="https://imgur.com/Efp3GBL.png" width="300">
 
 This would be the screen if you choose the first option. Have a look at the charts and thereafter click on 'Predict Road Surface'.
 
-<img src="https://imgur.com/axBb3S5.jpg" width="200">
+<img src="https://imgur.com/axBb3S5.jpg" width="300">
 
 On the last page, you will see your driven route and the corresponding surface type prediction. Please keep in mind that you need to restart the App after this screen.
 
